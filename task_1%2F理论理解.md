@@ -1,0 +1,877 @@
+# Task1:深度学习基本结构手写实现
+## 理论理解
+- 什么是多层感知机（MLP）？其结构是怎样的？
+多层感知机是一种人工神经网络模型，通过模拟人脑神经元之间的连接方式，实现对数据的非线性映射和复杂模式学习。
+MLP的结构由多个层级的神经元组成，主要包括：**输入层**（收集原始数据）、**隐藏层**（通过激活函数对输入信号进行转换，提取数据的复杂特征）、**输出层**（根据任务输出结果）。
+- 数据在神经网络中扮演那些角色？（数据集的split和处理）
+输入数据、训练数据、验证数据（监控模型在训练过程中的准确率）、测试数据（评估模型的最终性能）、数据预处理（输入神经网络之前的归一化、标准化、去噪等等，以提高数据的质量）、数据增强（增加数据的多样性，提高模型的泛化能力）
+     - 噪声是什么？特征是什么？标签是什么？
+  噪声是数据中的**无关干扰信息**；特征指数据中用于**描述样本的属性或变量**；标签指样本对应的**目标结果或类别**（主要指监督学习中出现的“标准答案”）。
+    - Batch size是什么？为什么堆叠成Batch可以提高运算速度？
+    Batch size指**批大小**，即输入到模型中的样本数量；现代硬件（如GPU）擅长并行处理大量相似的计算任务，当样本以Batch形式输入时，模型对每个样本的计算可以**同时进行**，无需逐个计算。
+ - 神经元是什么？
+ 神经网络中，神经元是模拟生物大脑中神经细胞的基本计算单元，他的工作路程可以理解为：**接收输入**、**加权计算**（给每个输入值分配一个权重，然后将输入值与对应权重相乘并求和）、**激活处理**（将求和结果传入一个激活函数，通过函数转换输出一个结果，这个结果会作为下一层神经元的输入）。
+- 什么是激活函数？常见的激活函数有哪些？什么叫“非线性表达能力”？
+激活函数是对神经元输出进行非线性转换的函数。常见的激活函数有**ReLU**、**Sigmoid**、**Softmax**等。非线性表达能力指模型通过非线性转换，学习和表示**输入与输出之间复杂关系**（非线性关系）的能力。
+- 什么是计算图？它和数据结构，离散数学中学的图有什么区别？怎么构建计算图？
+计算图是一种用结点和边表示数学运算流程的图形化工具，用于描述张量的计算过程。
+计算图专为“计算流程”而设计，表达运算的依赖关系和数据流向；而图是通用的抽象结构，不限于计算场景；计算图的节点是**运算或变量**,边是**数据流向**;通用图的节点是任意元素，边是元素之间的关系。
+构建计算图的步骤是将计算流程拆解为结点和边：
+  1.拆解计算步骤 2.定义节点 3.连接边 
+- 怎么计算MLP的参数量？什么是超参数？MLP有哪些超参数？
+MLP的参数量由各层的权重和偏置组成，计算方式为：设该层有n_in个神经元，后一层有n_out个神经元，该层总参数：**n_in*n_out+n_out=(n_in+1)*n_out**，总参数量等于各层参数量之和。
+超参数是模型训练之前人为设定的参数，而非训练过程中学习得到的参数，它决定了模型的结构和训练过程，需要通过调优来选择最优值。
+MLP常见的超参数有：**网络结构相关**（隐藏层的数量）、**训练过程相关**（学习率、批大小、训练轮数、正则化参数，防止过拟合）、**激活函数**、**优化器**。
+- 什么是隐藏层？它为什么叫这个名字？
+隐藏层是MLP中负责**对输入数据进行逐步的特征转换和加工**的中间层。
+因为**这些层既不直接接受外界的原始输入，又不直接输出最终结果，它的存在和具体运算过程对模型的使用者来说是隐藏的**。
+- 什么是损失函数？什么任务用损失函数？
+损失函数是用来**衡量模型预测结果与真实结果之间差异**的函数。需要通过数据训练的机器学习，深度学习就需要损失函数。
+- 前向传播是什么？梯度是什么？学习率是什么？反向传播是什么？有哪些常见的优化器？
+前向传播是神经网络中数据由**输入层流向输出层**的计算过程。
+梯度是**损失函数对于每个参数（权重）的变化率。**梯度的方向指示了**损失函数随参数变化的“上升最快的方向”**，反向传播中会利用梯度的**反方向**（下降方向）来更新参数，以减小损失。
+学习率是**控制参数更新幅度**的超参数，决定了每次根据梯度调整参数时需要“迈多大的步子”。
+反向传播是计算**损失函数对各层参数梯度的过程**，有了梯度才能结合学习率通过优化器调整参数，减小损失。
+常见的优化器有SGD(随机梯度下降）、SGD+动量、Adam(最常用之一）、RMSprop(适合处理非平稳目标）、Adagrad（适合稀疏数据）。
+- 归一化是什么？正则化是什么？
+归一化是对数据进行预处理的操作，**将不同特征的数值范围调整到相近区间**，防止特征数据范围差异过大；正则化是一种**防止模型过拟合**的技术，通过在损失函数中加入额外的“惩罚项”，限制模型参数的大小或者复杂度。
+- 什么是欠拟合？什么是过拟合？
+欠拟合指模型**无法很好地学习训练数据中的规律**；过拟合是**过度死记硬背训练数据的细节（包括噪声），导致在训练数据上表现的极好，但在新数据上表现得极差。**![输入图片说明](/imgs/2025-09-22/R34Y5nxSbMNKKTPt.png)
+## numpy代码
+```
+import numpy as np  
+import matplotlib.pyplot as plt  
+  
+# 1.参数初始化  
+def initialize_parameters(input_size,hidden_size,output_size):  
+    """  
+    初始化神经网络参数  
+    参数：  
+    input_size:输入层大小  
+    hidden_size；隐藏层大小  
+    output_size:输出层大小  
+    返回：    包含权重和偏置的字典  
+  
+    """    np.random.seed(42)# 设置随机种子确保结果可以重现  
+    parameters={  
+        'W1':np.random.randn(hidden_size,input_size)*0.01,# 隐藏层权重  
+        'b1':np.zeros((hidden_size,1)),# 隐藏层偏置项，创建一个元素都为0的列向量  
+        # 偏置项是神经元的特性，不是样本的属性，一个神经元作用于m个样本的偏置项是相同的  
+        'W2':np.random.randn(output_size,hidden_size)*0.01,# 输出层权重  
+        'b2':np.zeros((output_size,1)),# 输出层偏置  
+    }  
+    return parameters  
+  
+# 2.激活函数  
+def sigmoid(z):# z就是权重*样本的结果  
+    """Sigmoid激活函数"""  
+    return 1/(1+np.exp(-z))  
+  
+def tanh(z):  
+    """  
+    Tanh函数  
+    它是一个将任意实数输入“压缩”到 (-1, 1) 区间的S形函数。  
+    数学定义：  
+    tanh(x) = (e^x - e^(-x)) / (e^x + e^(-x))    """    return np.tanh(z)  
+  
+def relu(z):  
+    """ReLU激活函数"""  
+    return np.maximum(0,z)  
+  
+# 3.前向传播  
+def forward_progagation(X,parameters):  
+    """  
+    执行前向传播  
+  
+    参数：  
+    X：输入数据  
+    parameters:包含权重和偏置的字典  
+  
+    返回：    包含各层计算结果和缓存的元组  
+    """    # 获取参数  
+    W1=parameters['W1']  
+    b1=parameters['b1']  
+    W2=parameters['W2']  
+    b2=parameters['b2']  
+  
+    # 第一层（隐藏层)计算  
+    Z1=np.dot(W1,X)+b1# dot:矩阵相乘  
+    A1=tanh(Z1)# 使用tanh激活函数，多用于隐藏层  
+  
+    # 第二层（输出层）计算  
+    Z2=np.dot(W2,A1)+b2  
+    A2=sigmoid(Z2)# 使用Sigmoid激活函数（适用于二分类）  
+  
+    # 缓存中间结果，适用于反向传播  
+    cache={  
+        'Z1':Z1,  
+        'A1':A1,  
+        'Z2':Z2,  
+        'A2':A2  
+    }  
+    return A2,cache  
+  
+# 4.计算损失  
+def compute_cost(A2,Y):  
+    """  
+    计算交叉熵损失  
+  
+    参数：  
+    A2：前向传播的输出  
+    Y：真实标签  
+  
+    返回：    成本值  
+    """    m=Y.shape[1]# 样本数量  
+  
+    # 计算交叉熵损失  
+    # 对于二分类问题，交叉熵损失的公式是L(y, a) = - [y * log(a) + (1-y) * log(1-a)]  
+    logprobs=np.multiply(np.log(A2),Y)+np.multiply(np.log(1-A2),1-Y)# multiply:逐个元素相乘；log:取对数  
+    cost=-np.sum(logprobs)/m# 对得到的m*1列向量中的元素求和，在/m，求出平均误差  
+  
+    # 确保成本是标量而不是数组  
+    cost=np.squeeze(cost)  
+    # squeeze的作用：删除数组中所有长度为1的维度，确保最终返回的都是一个纯粹的标量数值，而不是包裹在数组中的数值  
+  
+    return cost  
+  
+# 5.反向传播  
+def background_propagation(parameters,cache,X,Y):  
+    """  
+    执行反向传播  
+  
+    参数：  
+    parameters: 包含权重和偏置的字典  
+    cache: 前向传播的缓存  
+    X:输入数据  
+    Y:真实标签  
+  
+    返回：包含梯度的字典  
+    """    m=X.shape[1]# 样本数量  
+  
+    # 获取参数和内存  
+    W1=parameters['W1']  
+    W2=parameters['W2']  
+    A1=cache['A1']  
+    A2=cache['A2']  
+  
+    # 输出层的梯度计算  
+    # δL/δZ=δL/δA * δA/δz=A-Y  
+    dZ2=A2-Y  
+    dW2=(1/m)*np.dot(dZ2,A1.T)# δL/δW2=dZ2*(δZ2/δW2)=dZ2*(A1.T)  
+    db2=(1/m)*np.sum(dZ2,axis=1,keepdims=True)  
+  
+    # 隐藏层的梯度计算  
+    dZ1=np.dot(W2.T, dZ2)*(1-np.power(A1,2))# tanh的导数是1-tanh^2  
+    dW1=(1/m)*np.dot(dZ1,X.T)  
+    db1=(1/m)*np.sum(dZ1,axis=1,keepdims=True)  
+  
+    gradients={  
+        'dW1':dW1,  
+        'db1':db1,  
+        'dW2':dW2,  
+        'db2':db2  
+    }  
+  
+    return gradients  
+  
+# 6.参数更新  
+def update_parameters(parameters,gradients,learning_rate):  
+    """  
+  
+    使用梯度下降更新参数  
+  
+    参数：  
+    parameters: 包含权重和偏置的字典  
+    gradients: 包含梯度的字典  
+    learning_rate: 学习率  
+  
+    返回：更新后的参数  
+    """    # 获取参数  
+    W1 = parameters['W1']  
+    b1 = parameters['b1']  
+    W2 = parameters['W2']  
+    b2 = parameters['b2']  
+  
+    # 获取梯度  
+    dW1 = gradients['dW1']  
+    db1 = gradients['db1']  
+    dW2 = gradients['dW2']  
+    db2 = gradients['db2']  
+  
+    # 更新参数  
+    W1=W1-learning_rate*dW1  
+    b1=b1-learning_rate*db1  
+    W2=W2-learning_rate*db2  
+    b2=b2-learning_rate*b2  
+  
+    update_parameters={  
+        'W1':W1,  
+        'b1':b1,  
+        'W2':W2,  
+        'b2':b2  
+    }  
+  
+    return update_parameters  
+  
+# 7.构建完整模型  
+def model(X,Y,hidden_size,learning_rate=0.01,num_iterations=10000,print_cost=False):  
+    """  
+    构建完整的神经网络模型  
+    参数：  
+    X: 输入数据  
+    T: 真实标签  
+    hidden_size: 隐藏层大小  
+    learning_rate: 学习率  
+    num_iterations: 迭代次数  
+    print_cost: 是否打印成本  
+  
+    返回：    训练后的参数  
+  
+    """    np.random.seed(3)# 保证参数初始化的结果一致  
+    input_size=X.shape[0]  
+    output_size=Y.shape[0]  
+  
+  
+    # 初始化参数  
+    parameters=initialize_parameters(input_size,hidden_size,output_size)  
+  
+    costs=[]# 用于记录成本  
+  
+    # 训练循环  
+    for i in range(num_iterations):  
+        # 前向传播  
+        A2, cache = forward_progagation(X, parameters)  
+  
+        # 计算成本  
+        cost = compute_cost(A2, Y)  
+  
+        # 反向传播  
+        gradients = background_propagation(parameters, cache, X, Y)  
+  
+        # 更新参数  
+        parameters = update_parameters(parameters, gradients, learning_rate)  
+  
+        # 记录成本  
+        if i % 1000 == 0:  
+            costs.append(cost)  
+            if print_cost:  
+                print(f"迭代次数 {i}: 成本 = {cost}")  
+  
+        # 绘制成本曲线  
+    plt.plot(cost)  
+    plt.ylabel('成本')  
+    plt.xlabel('迭代次数 (每千次)')  
+    plt.title(f'学习率 = {learning_rate}')  
+    plt.show()  
+  
+    return parameters  
+  
+    # 8. 预测函数  
+  
+  
+def predict(parameters, X):  
+    """  
+    使用训练好的参数进行预测  
+  
+    参数:  
+    parameters: 训练后的参数  
+    X: 输入数据  
+  
+    返回:  
+    预测结果 (0或1)  
+    """    A2, _ = forward_progagation(X, parameters)  
+    predictions = (A2 > 0.5).astype(int)  
+    return predictions  
+  
+    # 9. 测试模型  
+  
+  
+def test_model():  
+    """测试神经网络模型"""  
+    # 创建简单的数据集  
+    np.random.seed(1)  
+  
+    # 生成两类数据点  
+    class1 = np.random.randn(2, 50) + np.array([[2], [2]])  
+    class2 = np.random.randn(2, 50) + np.array([[-2], [-2]])  
+  
+    # 合并数据  
+    X = np.hstack((class1, class2))  
+    Y = np.hstack((np.zeros((1, 50)), np.ones((1, 50))))  
+  
+    # 训练模型  
+    parameters = model(X, Y, hidden_size=4, learning_rate=0.1,  
+                       num_iterations=10000, print_cost=True)  
+  
+    # 进行预测  
+    predictions = predict(parameters, X)  
+  
+    # 计算准确率  
+    accuracy = np.mean(predictions == Y) * 100  
+    print(f"训练准确率: {accuracy:.2f}%")  
+  
+    return parameters, X, Y  
+  
+    # 运行测试  
+  
+  
+if __name__ == "__main__":  
+    parameters, X, Y = test_model()
+ ```
+### 运行结果
+![输入图片说明](/imgs/2025-09-23/FpFWoZZQ5eX0d6SX.png)
+## cpp神经网络
+### 代码
+```
+#include<iostream>
+
+#include<vector>
+
+#include<cmath>
+
+#include<cstdlib>
+
+#include<ctime>
+
+#include<algorithm>
+
+#include<numeric>
+
+#include<stdexcept> // 添加stdexcept头文件用于异常处理
+
+  
+
+class NeuralNetwork{
+
+private:
+
+//网络结构参数
+
+int input_size, hidden_size, output_size;
+
+  
+
+//权重和偏置
+
+std::vector<std::vector<double>> weights_input_hidden;
+
+std::vector<double> biases_hidden;
+
+  
+
+std::vector<std::vector<double>> weights_hidden_output;
+
+std::vector<double> biases_output;
+
+  
+
+//前向传播中间结果
+
+std::vector<double> hidden_layer_linear;
+
+std::vector<double> hidden_layer_activation;
+
+std::vector<double> output_layer_linear;
+
+std::vector<double> output_layer_activation;
+
+  
+
+// 存储反向传播的梯度（移动到private区域）
+
+std::vector<double> gradients_delta_output;
+
+std::vector<double> gradients_delta_hidden;
+
+std::vector<double> gradients_last_input;
+
+  
+
+public:
+
+NeuralNetwork(int input_size, int hidden_size, int output_size)
+
+: input_size(input_size), hidden_size(hidden_size), output_size(output_size) {
+
+srand(time(0));
+
+}
+
+  
+
+//1.参数初始化
+
+void initialize_parameters(){
+
+//初始化输入层到隐藏层的权重（使用Xavier）
+
+weights_input_hidden.resize(hidden_size, std::vector<double>(input_size));
+
+// 修复：循环条件应该是 j < input_size 而不是 j > input_size
+
+for(int i = 0; i < hidden_size; ++i){
+
+for(int j = 0; j < input_size; ++j){ // 修复这里
+
+double range = sqrt(6.0 / (input_size + hidden_size));
+
+weights_input_hidden[i][j] = (double)rand() / RAND_MAX * 2 * range - range;
+
+}
+
+}
+
+  
+
+//初始化隐藏层偏置
+
+biases_hidden.resize(hidden_size, 0.1);
+
+  
+
+//初始化隐藏层到输出层的权重
+
+weights_hidden_output.resize(output_size, std::vector<double>(hidden_size));
+
+for(int i = 0; i < output_size; ++i){
+
+for(int j = 0; j < hidden_size; ++j){
+
+double range = sqrt(6.0 / (hidden_size + output_size));
+
+weights_hidden_output[i][j] = (double)rand() / RAND_MAX * 2 * range - range;
+
+}
+
+}
+
+  
+
+//初始化输出层偏置
+
+biases_output.resize(output_size, 0.1);
+
+  
+
+std::cout << "参数初始化完成" << std::endl;
+
+}
+
+  
+
+//激活函数
+
+double relu(double x){
+
+return std::max(0.0, x);
+
+}
+
+  
+
+double sigmoid(double x){
+
+return 1.0 / (1.0 + exp(-x));
+
+}
+
+  
+
+//激活函数导数
+
+double relu_derivative(double x){
+
+return x > 0 ? 1.0 : 0.0;
+
+}
+
+  
+
+double sigmoid_derivative(double x){
+
+return x * (1 - x);
+
+}
+
+  
+
+//2.前向传播
+
+std::vector<double> forward(const std::vector<double>& input){
+
+//检查输入尺寸
+
+if(input.size() != input_size){
+
+throw std::invalid_argument("输入尺寸不匹配");
+
+}
+
+  
+
+//隐藏层线性计算：z1 = W1*x + b1
+
+hidden_layer_linear.resize(hidden_size);
+
+for(int i = 0; i < hidden_size; ++i){
+
+// 修复：这里应该是biases_hidden[i]而不是biases_output[i]
+
+hidden_layer_linear[i] = biases_hidden[i];
+
+for(int j = 0; j < input_size; ++j){
+
+hidden_layer_linear[i] += input[j] * weights_input_hidden[i][j];
+
+}
+
+}
+
+  
+
+//隐藏层激活：a1 = relu(z1)
+
+hidden_layer_activation.resize(hidden_size);
+
+for(int i = 0; i < hidden_size; ++i){
+
+hidden_layer_activation[i] = relu(hidden_layer_linear[i]);
+
+}
+
+  
+
+//输出层线性计算：z2 = W2*a1 + b2
+
+output_layer_linear.resize(output_size);
+
+for(int i = 0; i < output_size; ++i){
+
+output_layer_linear[i] = biases_output[i];
+
+for(int j = 0; j < hidden_size; ++j){
+
+output_layer_linear[i] += hidden_layer_activation[j] * weights_hidden_output[i][j];
+
+}
+
+}
+
+  
+
+//输出层激活：a2 = sigmoid(z2)
+
+output_layer_activation.resize(output_size);
+
+for(int i = 0; i < output_size; ++i){
+
+output_layer_activation[i] = sigmoid(output_layer_linear[i]);
+
+}
+
+  
+
+return output_layer_activation;
+
+} // 修复：这里缺少了分号
+
+  
+
+//3.损失计算（二元交叉熵损失）
+
+double compute_loss(const std::vector<double>& prediction, const std::vector<double>& target){
+
+double loss = 0.0;
+
+for(size_t i = 0; i < prediction.size(); ++i){
+
+//避免log(0)的情况
+
+double y_pred = std::max(std::min(prediction[i], 1.0 - 1e-15), 1e-15);
+
+loss += -target[i] * log(y_pred) - (1 - target[i]) * log(1 - y_pred);
+
+}
+
+return loss / prediction.size();
+
+}
+
+  
+
+//4.反向传播
+
+void backward(const std::vector<double>& input, const std::vector<double>& target){
+
+//计算输出层梯度
+
+std::vector<double> delta_output(output_size);
+
+for(int i = 0; i < output_size; ++i){
+
+//dL/dz2 = (a2 - y) * sigmoid_derivative
+
+delta_output[i] = (output_layer_activation[i] - target[i]) * sigmoid_derivative(output_layer_activation[i]);
+
+}
+
+  
+
+//计算隐藏层梯度
+
+std::vector<double> delta_hidden(hidden_size, 0.0);
+
+for(int i = 0; i < hidden_size; ++i){
+
+//dL/dz1 = (W2^T * delta_output) * relu_derivative
+
+for(int j = 0; j < output_size; ++j){
+
+delta_hidden[i] += delta_output[j] * weights_hidden_output[j][i];
+
+}
+
+delta_hidden[i] *= relu_derivative(hidden_layer_activation[i]);
+
+}
+
+  
+
+//储存梯度用于参数更新
+
+gradients_delta_output = delta_output;
+
+gradients_delta_hidden = delta_hidden;
+
+gradients_last_input = input;
+
+}
+
+  
+
+//5.参数更新：梯度下降
+
+void update_parameters(double learning_rate){
+
+//更新隐藏层到输出层的权重和偏置
+
+for(int i = 0; i < output_size; ++i){
+
+for(int j = 0; j < hidden_size; ++j){
+
+// 修复：这里应该是weights_hidden_output而不是weights_input_hidden
+
+weights_hidden_output[i][j] -= learning_rate * gradients_delta_output[i] * hidden_layer_activation[j];
+
+}
+
+biases_output[i] -= learning_rate * gradients_delta_output[i];
+
+}
+
+  
+
+//更新输入层到隐藏层的权重和偏置
+
+for(int i = 0; i < hidden_size; ++i){
+
+for(int j = 0; j < input_size; ++j){
+
+// 修复：这里应该是weights_input_hidden而不是weights_hidden_output
+
+weights_input_hidden[i][j] -= learning_rate * gradients_delta_hidden[i] * gradients_last_input[j];
+
+}
+
+biases_hidden[i] -= learning_rate * gradients_delta_hidden[i];
+
+}
+
+}
+
+  
+
+// 完整的训练流程
+
+void train(const std::vector<std::vector<double>>& X,
+
+const std::vector<std::vector<double>>& y,
+
+int epochs, double learning_rate) {
+
+initialize_parameters();
+
+for(int epoch = 0; epoch < epochs; ++epoch){
+
+double total_loss = 0.0;
+
+for(size_t i = 0; i < X.size(); ++i){
+
+// 前向传播
+
+std::vector<double> prediction = forward(X[i]);
+
+// 计算损失
+
+double loss = compute_loss(prediction, y[i]);
+
+total_loss += loss;
+
+// 反向传播
+
+backward(X[i], y[i]);
+
+// 参数更新
+
+update_parameters(learning_rate);
+
+}
+
+// 每1000轮打印一次损失
+
+if(epoch % 1000 == 0){
+
+std::cout << "Epoch " << epoch << ", Loss: " << total_loss / X.size() << std::endl;
+
+}
+
+}
+
+}
+
+};
+
+  
+
+// 测试函数
+
+int main() {
+
+// XOR 数据集
+
+std::vector<std::vector<double>> X = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+
+std::vector<std::vector<double>> y = {{0}, {1}, {1}, {0}};
+
+// 创建神经网络
+
+NeuralNetwork nn(2, 4, 1); // 2输入, 4隐藏神经元, 1输出
+
+// 训练
+
+nn.train(X, y, 10000, 0.5);
+
+// 测试
+
+std::cout << "\n测试结果:" << std::endl;
+
+for(size_t i = 0; i < X.size(); ++i){
+
+std::vector<double> prediction = nn.forward(X[i]);
+
+std::cout << "输入: " << X[i][0] << ", " << X[i][1]
+
+<< " -> 预测: " << prediction[0]
+
+<< " (期望: " << y[i][0] << ")" << std::endl;
+
+}
+
+return 0;
+
+}
+```
+### 运行结果
+![输入图片说明](/imgs/2025-09-24/BTyNZotZnvCdkMTA.png)
+## 神经网络架构图
+![输入图片说明](/imgs/2025-07-30/5nbqdR0UNQip4RYQ.jpeg)
+## 使用简单的数据集训练
+### 调整noise的大小
+numpy神经网络模型不同噪声的结果
+![输入图片说明](/imgs/2025-07-30/4PxFfqVicq8Denee.jpeg)
+
+
+![输入图片说明](/imgs/2025-07-30/FSgvNHi0FINjGm9a.jpeg)
+![输入图片说明](/imgs/2025-07-30/STzxSjuoylaFdweB.jpeg)
+### 用matplotlib将数据集可视化并用数学层面表达
+![输图片说明](/imgs/2025-07-30/1cdonlRVsudyfoZy.png)
+假设我们有一个数据集D，他由N个样本组成，每个样本包含D个特征和一个二分类标签。特征矩阵X表示每一个样本的特征向量，标签向量Y表示对应样本的分类标签。在上面的代码中，D=2.（二维特征空间）N=100（100个样本）。
+数学上，数据集可以表示为D={（X1，Y1），（X2，Y2）........（Xn,Yn）}.
+散点图里面每个点的颜色表示其所属的类别。
+### c++里面如何使用数据集
+- 访问LibTorch(PyTorch的c++版本）加载数据集
+- 手动加载数据集
+- 使用其他数据集加载库（XTensor、Shark）
+## 手动实现参数初始化、前向传播、损失计算、反向传播、参数更新
+### 1.初始化参数：随机初始化网络的权重和偏置。
+```
+def initialize_parameters(input_size, hidden_size, output_size):  
+    np.random.seed(42)  # 固定随机种子，保证结果可复现  
+    W1 = np.random.randn(hidden_size, input_size) * 0.01  # 隐藏层权重  
+    b1 = np.zeros((hidden_size, 1))  # 隐藏层偏置  
+    W2 = np.random.randn(output_size, hidden_size) * 0.01  # 输出层权重  
+    b2 = np.zeros((output_size, 1))  # 输出层偏置  
+    return W1, b1, W2, b2
+   ```
+### 2. 前向传播：输入数据通过网络逐层计算。每层计算加权和，并应用激活函数。
+```
+def forward_propagation(X, W1, b1, W2, b2):  
+    Z1 = np.dot(W1, X) + b1  # 隐藏层加权和  
+    A1 = np.tanh(Z1)  # 隐藏层激活（tanh函数）  
+    Z2 = np.dot(W2, A1) + b2  # 输出层加权和  
+    A2 = sigmoid(Z2)  # 输出层激活（sigmoid，得到预测概率）  
+    return Z1, A1, Z2, A2
+   ```
+### 3. 计算损失：比较预测结果与真实标签，计算损失值（如均方误差、交叉熵损失等）。
+```
+def compute_loss(A2, Y):  
+    m = Y.shape[1]  # 样本数量  
+    loss = -np.sum(Y * np.log(A2) + (1 - Y) * np.log(1 - A2)) / m  # 平均损失  
+    return np.squeeze(loss)  # 去除冗余维度
+   ```
+### 4. 反向传播：从输出层开始，反向计算每层的梯度。根据链式法则，计算每个参数对损失的贡献
+```def backward_propagation(W1, W2, Z1, A1, Z2, A2, X, Y):  
+    m = X.shape[1]  
+    dZ2 = A2 - Y  # 输出层误差  
+    dW2 = np.dot(dZ2, A1.T) / m  # 输出层权重梯度  
+    db2 = np.sum(dZ2, axis=1, keepdims=True) / m  # 输出层偏置梯度  
+  
+    dZ1 = np.dot(W2.T, dZ2) * (1 - np.power(A1, 2))  # 隐藏层误差（tanh导数）  
+    dW1 = np.dot(dZ1, X.T) / m  # 隐藏层权重梯度  
+    db1 = np.sum(dZ1, axis=1, keepdims=True) / m  # 隐藏层偏置梯度  
+    return dW1, db1, dW2, db2
+   ```
+### 5. 更新参数：使用优化算法（如梯度下降）更新权重和偏置，以减小损失。
+```
+def update_parameters(W1, b1, W2, b2, dW1, db1, dW2, db2, learning_rate):  
+    W1 -= learning_rate * dW1  # 学习率控制更新幅度  
+    b1 -= learning_rate * db1  
+    W2 -= learning_rate * dW2  
+    b2 -= learning_rate * db2  
+    return W1, b1, W2, b2
+   ```
+### 6. 迭代训练：重复前向传播、计算损失、反向传播和更新参数的过程，直到模型性能满意或达到预设的训练轮数。
+## 输出训练损失下降曲线和分类准确率
+在训练过程中记录每个迭代的损失值和准确率，然后使用matplotlib绘制曲线
+![输入图片说明](/imgs/2025-07-31/90DUutgDuDVllTrd.png)
+## 模型推理结果可视化
+### 模型的输出表示的应该是这个样本属于每个类别的概率值，所有类别（这里是2个）的概率值加起来为1（你是通过什么手段保证这一点的？如果有更多类呢？）
+- 在上面的二分类任务中，使用了sigmoid函数作为输出层的激活函数。激活函数将输出值映射到[0,1]区间，表示样品属于类别1的概率，由于二分类问题中只有两个类别，所以类别二的概率可以表示为**1-sigmoid(z)**,所以两个概率之和自然为1.
+- 多分类任务，通常使用**softmax**作为输出层的激活函数，softmax函数可以**将输出层映射到[0,1]之间并且保证和为1**.
+  sofemax函数定义如下：
+  ```
+  def softmax(z):
+  e_z=np.exp(z-np.max(z)) # 减去数值最大值以提高数值稳定性
+  return e_z/e_z.sum(axis=0,keepdims=Ture)
+  ```
+### 用matliptlib将推理结果可视化
+![输入图片说明](/imgs/2025-07-31/JyBJpOr149foJZRf.png)
+## 对比Pytorch,numpy,cpp神经网络的训练/推理速度，分析原因（底层原理，硬件应用）
+- Pytorch训练推理速度较快，其提供了自动微分功能和动态计算图，反向传播时可自动生成梯度计算流程，无需手动实现；Pytorch内置对GPU的支持能将张量计算和模型训练高效地部署在GPU上，加快了训练和推理速度，适用于深度学习的快速开发。
+- Numpy训练速度较慢，其主要用于科学计算，没有深度学习专用功能，且本身不支持GPU加速，适用于传统的科学计算和数据分析任务，或者深度学习的简单原型设计，小规模实验。
+- cpp训练速度较快，但是存在受限因素，比如代码量大开发难度高，缺乏深度学习专用库等，适用于性能要求极高且具备较强能力c++开发能力的项目，如大型游戏的人工智能部分、嵌入式设备上的深度学习应用等。
+
+
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbMTY0MDgxNTkxNF19
+-->
