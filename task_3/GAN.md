@@ -13,12 +13,12 @@
 ·  p_{z} ：随机噪声的分布
 判别器判别生成样本为真实样本，则D=1；判别为生成的样本则D=0.
 **在G处于理想状态下，代价函数应该为0；而D的目标是最大化代价函数。**
-![输入图片说明](/imgs/2025-10-04/4XlmezntCsvtmGla.png)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-10-04%252F4XlmezntCsvtmGla.png)
 下面的四幅图模拟了模型工作的过程：黑色曲线和绿色曲线分别代表真实数据和生成数据，经过三步，最终生成数据和真实数据场合，辨别器无法辨别。
-![输入图片说明](/imgs/2025-10-04/LRmtq9Rj8xu1BQIj.png)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-10-04%252FLRmtq9Rj8xu1BQIj.png)
 下面是参数更新的方法：
 首先更新D的参数，然后更新G的参数。循环k步。
-![输入图片说明](/imgs/2025-10-04/4z9KDhBHJIKFuoM1.png)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-10-04%252F4z9KDhBHJIKFuoM1.png)
 原始代价函数的问题与改进
 问题：梯度消失
 在训练早期，当生成器还很弱时，它生成的样本很容易被判别器识破,即  $$D(G(z)) \approx 0 $$。这会使得第二项$$  \log(1 - D(G(z))) \approx \log(1) = 0 $$，导致梯度非常平缓，生成器学不到东西。
@@ -31,7 +31,7 @@
 · 直观理解：原始目标是"让假货不被认为是假货"，新目标是"让假货被认定为真货"。虽然最终目标一致，但在训练初期，新目标能提供强得多的梯度，使得训练更稳定、更高效,从而达到纳什均衡点。
 ### 理论数学证明
 提到了很多专业的术语，但是这里证明了当**生成数据分布等于真实数据分布**时，D有最优解。然后把D的最优解（D*(x)=0.5）代入代价函数，得到G的最优解,达到纳什平衡点。
-![输入图片说明](/imgs/2025-10-04/Tv75W1OMTP5a18jX.png)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-10-04%252FTv75W1OMTP5a18jX.png)
 
 
 <!--stackedit_data:
