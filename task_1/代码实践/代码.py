@@ -1,4 +1,3 @@
-# 代码实践
 ## PyTorch神经网络
 ### 代码
 ``` 
@@ -221,11 +220,10 @@ with torch.no_grad():
     predicted_class = classes[predicted.item()]  
     actual_class = classes[y]  
     print(f'Predicted: "{predicted_class}", Actual: "{actual_class}"')
-   ```
- ###运行结果
- ![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-09-22%252FR34Y5nxSbMNKKTPt.png)
+
+
 ## numpy代码
-```
+
 import numpy as np  
 import matplotlib.pyplot as plt  
   
@@ -499,17 +497,13 @@ def test_model():
   
     return parameters, X, Y  
   
-    # 运行测试  
-  
-  
+# 运行测试  
 if __name__ == "__main__":  
     parameters, X, Y = test_model()
- ```
-### 运行结果
-![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-09-23%252FFpFWoZZQ5eX0d6SX.png)
+
 ## cpp神经网络
 ### 代码
-```
+
 #include<iostream>
 #include<vector>
 #include<cmath>
@@ -711,8 +705,7 @@ std::cout << "输入: " << X[i][0] << ", " << X[i][1]
 return 0;
 }
 ```
-### 运行结果
-![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-09-24%252FBTyNZotZnvCdkMTA.png)
+
 
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbMTczNTUwMDU1MF19
