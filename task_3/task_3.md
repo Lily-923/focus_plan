@@ -39,18 +39,18 @@ g(x,y)=h(x,y)⊕f(x,y)+n(x,y)
 本题中的图片应该是从清晰图像加上马赛克的模糊图像。应该属于“人工降采样/像素化失真”。
 验证：1.把图放大，看是否出现**整齐的N*N同色方块**
             2.利用**灰度直方图**。像素画直方图呈现**稀疏，离散的尖峰**，高斯/椒盐噪声的直方图连续且平滑。
-![输入图片说明](/imgs/2025-08-09/F1ih3CUl6D4j9u58.png)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-08-09%252FF1ih3CUl6D4j9u58.png)
 ## 你觉得什么模型比较适合用来处理这个问题，什么模型不适合？
 超分辨率+像素级约束+高频先验，无约束GAN（生成对抗网络）/U-net变体适合；纯去噪/去卷积、传统插值不适合。
 ## 什么是数据增强？请在你自己的数据集做一些数据增强用于数据训练。
 数据增强是在不改变（或仅轻微改变）样本标签的前提下，通过对已有数据做各种“变形”或“加噪”，人为地造出更多、更丰富的训练样本，从而提高模型泛化能力，减轻过拟合。
 
 ## 训练过程
-![输入图片说明](/imgs/2025-10-18/AkW1frsqtq90PmKO.jpeg)
-![输入图片说明](/imgs/2025-10-18/TH2FTrxoZ3cAijd8.jpeg)
-![输入图片说明](/imgs/2025-10-18/LwJm8RatTvUTXIcN.jpeg)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-10-18%252FAkW1frsqtq90PmKO.jpeg)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-10-18%252FTH2FTrxoZ3cAijd8.jpeg)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-10-18%252FLwJm8RatTvUTXIcN.jpeg)
 ### PSNR
-![输入图片说明](/imgs/2025-10-18/1I3JDpNmsppfXQ92.jpeg)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-10-18%252F1I3JDpNmsppfXQ92.jpeg)
 
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbLTU4OTYyODI1Nl19
