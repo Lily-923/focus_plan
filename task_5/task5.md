@@ -105,20 +105,20 @@ Pacman 的 ASCII 图形显示代码
 
 自动评分测试：
 
-![输入图片说明](/imgs/2025-08-24/2KPbXmrmaTugtSPZ.png)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-08-24&252F2KPbXmrmaTugtSPZ.png)
 
 
 ### Q2：广度优先搜索（BFS）
 注意：如果搜索代码写得通用，修改后应能直接用于八数码问题。
-![输入图片说明](/imgs/2025-08-24/MVLMslN1CBisUOCZ.png)
-![输入图片说明](/imgs/2025-08-24/298CQWvVuROtn8Mr.png)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-08-24&252FMVLMslN1CBisUOCZ.png)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-08-24&252F298CQWvVuROtn8Mr.png)
 自动评分测试。
 
-![输入图片说明](/imgs/2025-08-24/GAvxM6UqHJZ0Jwu8.png)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-08-24&252FGAvxM6UqHJZ0Jwu8.png)
 
 ### Q3：变化代价函数
 自动评分测试：
-![输入图片说明](/imgs/2025-08-24/Tk4czSIZ82UrtdfY.png)
+![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-08-24&252FTk4czSIZ82UrtdfY.png)
 
 ### Q4：A*搜索
 
