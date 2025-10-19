@@ -154,7 +154,7 @@ CNN把一张大图拆成了局部小块，逐层抽象，节省了参数，并�
 
  # Transformer
  ## 注意力机制
- ![输入图片说明](/imgs/2025-08-04/zpYU3SPbEXFvsolb.jpeg)
+ ![输入图片说明](https://github.com/Lily-923/stackedit-app-data/blob/master/imgs%252F2025-08-04%252FzpYU3SPbEXFvsolb.jpeg)
 ## 位置编码
 ### 为什么Transformer本身没有任何位置意识
 这其实是基于**自注意力机制的排列不变性**，**交叉注意力的顺序不变性**。
