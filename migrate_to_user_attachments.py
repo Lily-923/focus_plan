@@ -7,12 +7,12 @@ import os, re, pathlib, mimetypes, time, requests
 from tqdm import tqdm
 
 # ========== 用户配置 ==========
-TOKEN   = "ghp_xxxxxxxxxxxxxxxxxxxx"   # 你的 GitHub token
-USER    = "你的用户名"
-REPO    = "你的仓库名"
-BRANCH  = "main"
+TOKEN   = "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"   # 你的 GitHub token
+USER    = "Lily-923"
+REPO    = "stackedit-app-data"
+BRANCH  = "master"
 # 图片在仓库里的根目录，也可以改成 "." 表示全仓库
-IMG_ROOT = "imgs"
+IMG_ROOT = "."
 # ==============================
 
 HEADERS = {
